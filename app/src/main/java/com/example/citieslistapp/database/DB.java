@@ -75,8 +75,22 @@ public class DB {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_COUNTRY_ID, country_id);
         cv.put(COLUMN_CITY, city);
-        long dBAnewRowId = mDB.insert(DB_TABLE_COUNTRIES, null, cv);
+        long dBAnewRowId = mDB.insert(DB_TABLE_CITIES, null, cv);
         return dBAnewRowId;
+    }
+
+    public String getCountryName(long id) {
+        String country = "";
+        Cursor c = mDB.query(DB_TABLE_COUNTRIES, null, COLUMN_ID + " = " + id, null, null, null, null);
+        if (c.getCount() == 0)
+            country = "Error to get the record";
+        else {
+            while (c.moveToNext()) {
+                country = c.getString(c.getColumnIndex(COLUMN_COUNTRY));
+
+            }
+        }
+        return country;
     }
 
     // класс по созданию и управлению БД
@@ -90,22 +104,8 @@ public class DB {
         // создаем и заполняем БД
         @Override
         public void onCreate(SQLiteDatabase db) {
-
             db.execSQL(DB_CREATE_COUNTRIES);
-            ContentValues cv = new ContentValues();
-            for (int i = 1; i < 5; i++) {
-                cv.put(COLUMN_COUNTRY, "country " + i);
-                cv.put(COLUMN_CITY, "city " + i);
-                db.insert(DB_TABLE_COUNTRIES, null, cv);
-            }
-
             db.execSQL(DB_CREATE_CITIES);
-            ContentValues cv2 = new ContentValues();
-            for (int i = 1; i < 5; i++) {
-                cv2.put(COLUMN_COUNTRY, "country " + i);
-                cv2.put(COLUMN_CITY, "city " + i);
-                db.insert(DB_TABLE_COUNTRIES, null, cv2);
-            }
         }
 
         @Override

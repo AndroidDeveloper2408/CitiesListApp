@@ -4,21 +4,25 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 
 import com.example.citieslistapp.R;
+import com.example.citieslistapp.adapters.RecycleCitiesAdapter;
+import com.example.citieslistapp.adapters.TabsPagerFragmentAdapter;
 import com.example.citieslistapp.database.DB;
 import com.example.citieslistapp.network.GetCountries;
 import com.example.citieslistapp.network.MainSettings;
@@ -31,7 +35,11 @@ public class ScrollingActivity extends AppCompatActivity implements LoaderManage
     SimpleCursorAdapter adapter;
     ProgressDialog progressDialog;
 
+    ViewPager viewPager;
+
     MainSettings mainSettings = new MainSettings();
+
+    private static final String TAG = "myLogs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +51,7 @@ public class ScrollingActivity extends AppCompatActivity implements LoaderManage
         progressDialog = new ProgressDialog(this);
 
         new GetCurrentCountries(progressDialog, this).execute(MainSettings.API_LINK_GET_DATA);
+        initTabs();
     }
 
     @Override
@@ -66,7 +75,7 @@ public class ScrollingActivity extends AppCompatActivity implements LoaderManage
         return super.onOptionsItemSelected(item);
     }
 
-    public void initialize_spinner(){
+    public void initialize_spinner(final String json){
         // открываем подключение к БД
         db = new DB(this);
         db.open();
@@ -85,21 +94,31 @@ public class ScrollingActivity extends AppCompatActivity implements LoaderManage
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
         spinner.setAdapter(adapter);
         // заголовок
-        spinner.setPrompt("Title");
+        spinner.setPrompt("Change city");
         // выделяем элемент
-        spinner.setSelection(2);
+        spinner.setSelection(0);
         // устанавливаем обработчик нажатия
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view,
                                        int position, long id) {
-
+                RecyclerView recyclerView = (RecyclerView)findViewById(R.id.recyclerView);
+                recyclerView.setAdapter(new RecycleCitiesAdapter(mainSettings.findCitiesbyCountry(json, db.getCountryName(id))));
             }
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
             }
         });
+    }
+
+    public void initTabs() {
+        viewPager = (ViewPager) findViewById(R.id.viewPager);
+        TabsPagerFragmentAdapter tabsPagerFragmentAdapter = new TabsPagerFragmentAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(tabsPagerFragmentAdapter);
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
     }
 
     protected void onDestroy() {
@@ -110,11 +129,15 @@ public class ScrollingActivity extends AppCompatActivity implements LoaderManage
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new MyCursorLoader(this, db);
+
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         adapter.swapCursor(data);
+        if(progressDialog !=null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 
     @Override
@@ -133,6 +156,7 @@ public class ScrollingActivity extends AppCompatActivity implements LoaderManage
 
         @Override
         public Cursor loadInBackground() {
+
             Cursor cursor = db.getAllDataCountries();
             try {
                 TimeUnit.SECONDS.sleep(1);
@@ -151,8 +175,7 @@ public class ScrollingActivity extends AppCompatActivity implements LoaderManage
 
         @Override
         public void onSucess(String s) {
-            initialize_spinner();
-            mainSettings.parseJson(s, getBaseContext());
+            initialize_spinner(s);
         }
     }
 }

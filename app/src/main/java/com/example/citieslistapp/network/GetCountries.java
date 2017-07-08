@@ -27,7 +27,7 @@ public abstract class GetCountries extends AsyncTask<String, Void, String> {
     protected void onPreExecute() {
         super.onPreExecute();
         if(progressDialog !=null && !progressDialog.isShowing()) {
-            progressDialog.setMessage("Update data");
+            progressDialog.setMessage("Loading data");
             progressDialog.setCanceledOnTouchOutside(false);
             progressDialog.show();
         }
@@ -36,15 +36,13 @@ public abstract class GetCountries extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... params) {
         GetConnection http = new GetConnection();
+        mainSettings.parseJson(http.getJsonObj(params), context);
         return http.getJsonObj(params);
     }
 
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
-        if(progressDialog !=null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
         onSucess(s);
     }
 

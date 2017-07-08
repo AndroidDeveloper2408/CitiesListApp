@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.citieslistapp.R;
+import com.example.citieslistapp.adapters.RecycleCitiesAdapter;
 import com.example.citieslistapp.network.MainSettings;
 
 import java.util.ArrayList;
@@ -21,8 +22,6 @@ import java.util.ArrayList;
  */
 
 public class ExampleFragment extends Fragment {
-
-    MainSettings mainSettings = new MainSettings();
 
     private View view;
 
@@ -43,17 +42,10 @@ public class ExampleFragment extends Fragment {
         view = inflater.inflate(LAYOUT, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        ArrayList<String> arrayList = new ArrayList<>();
+        arrayList.add("No data");
+        recyclerView.setAdapter(new RecycleCitiesAdapter(arrayList));
         return view;
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        if(prefs.getBoolean("isdata", false)){
-            //weathers = mainSettings.groupByDay(mainSettings.parseLongForecastJson(prefs.getString("lastWeek", "123")));
-            //recyclerView.setAdapter(new RecycleForecastAdapter(weathers));
-        }
     }
 
 }
