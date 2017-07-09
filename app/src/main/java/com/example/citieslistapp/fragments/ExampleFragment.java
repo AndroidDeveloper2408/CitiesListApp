@@ -1,8 +1,6 @@
 package com.example.citieslistapp.fragments;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,7 +11,6 @@ import android.view.ViewGroup;
 
 import com.example.citieslistapp.R;
 import com.example.citieslistapp.adapters.RecycleCitiesAdapter;
-import com.example.citieslistapp.network.MainSettings;
 
 import java.util.ArrayList;
 

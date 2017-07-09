@@ -1,9 +1,14 @@
-package com.example.citieslistapp.activities;
+package com.example.citieslistapp.ui;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -13,7 +18,6 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +28,7 @@ import com.example.citieslistapp.R;
 import com.example.citieslistapp.adapters.RecycleCitiesAdapter;
 import com.example.citieslistapp.adapters.TabsPagerFragmentAdapter;
 import com.example.citieslistapp.database.DB;
+import com.example.citieslistapp.network.Constants;
 import com.example.citieslistapp.network.GetCountries;
 import com.example.citieslistapp.network.MainSettings;
 
@@ -37,9 +42,16 @@ public class ScrollingActivity extends AppCompatActivity implements LoaderManage
 
     ViewPager viewPager;
 
+    View appView;
+
     MainSettings mainSettings = new MainSettings();
 
     private static final String TAG = "myLogs";
+
+    SharedPreferences prefs;
+    SharedPreferences.Editor editor;
+
+    private boolean isData = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +62,18 @@ public class ScrollingActivity extends AppCompatActivity implements LoaderManage
 
         progressDialog = new ProgressDialog(this);
 
-        new GetCurrentCountries(progressDialog, this).execute(MainSettings.API_LINK_GET_DATA);
-        initTabs();
+        initViews();
+        if (prefs.getBoolean("isdata", false)) {
+            initialize_spinner(prefs.getString("json", ""));
+        }
+        else
+            Snackbar.make(appView, "No data, please tap settings to update", Snackbar.LENGTH_LONG).show();
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     @Override
@@ -69,8 +91,13 @@ public class ScrollingActivity extends AppCompatActivity implements LoaderManage
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_update) {
+            if (isNetworkAvailable()) {
+                new GetCurrentCountries(progressDialog, this).execute(Constants.API_LINK_GET_DATA);
+            }
+            else{
+                Snackbar.make(appView, "Connection is not available", Snackbar.LENGTH_LONG).show();
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -112,7 +139,11 @@ public class ScrollingActivity extends AppCompatActivity implements LoaderManage
         });
     }
 
-    public void initTabs() {
+    public void initViews() {
+
+        editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        appView = findViewById(R.id.viewApp);
         viewPager = (ViewPager) findViewById(R.id.viewPager);
         TabsPagerFragmentAdapter tabsPagerFragmentAdapter = new TabsPagerFragmentAdapter(getSupportFragmentManager());
         viewPager.setAdapter(tabsPagerFragmentAdapter);
@@ -137,6 +168,7 @@ public class ScrollingActivity extends AppCompatActivity implements LoaderManage
         adapter.swapCursor(data);
         if(progressDialog !=null && progressDialog.isShowing()) {
             progressDialog.dismiss();
+            Snackbar.make(appView, "Data loaded successfully", Snackbar.LENGTH_LONG).show();
         }
     }
 
