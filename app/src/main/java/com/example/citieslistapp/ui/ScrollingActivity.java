@@ -46,12 +46,8 @@ public class ScrollingActivity extends AppCompatActivity implements LoaderManage
 
     MainSettings mainSettings = new MainSettings();
 
-    private static final String TAG = "myLogs";
-
     SharedPreferences prefs;
     SharedPreferences.Editor editor;
-
-    private boolean isData = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,12 +81,7 @@ public class ScrollingActivity extends AppCompatActivity implements LoaderManage
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_update) {
             if (isNetworkAvailable()) {
                 new GetCurrentCountries(progressDialog, this).execute(Constants.API_LINK_GET_DATA);
@@ -103,28 +94,22 @@ public class ScrollingActivity extends AppCompatActivity implements LoaderManage
     }
 
     public void initialize_spinner(final String json){
-        // открываем подключение к БД
+
         db = new DB(this);
         db.open();
 
-        // формируем столбцы сопоставления
         String[] from = new String[] { DB.COLUMN_COUNTRY};
         int[] to = new int[] {android.R.id.text1};
 
-        // создаем адаптер и настраиваем список
         adapter = new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item, null, from, to, 0);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        // создаем лоадер для чтения данных
         getSupportLoaderManager().initLoader(0, null, this);
 
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
         spinner.setAdapter(adapter);
-        // заголовок
         spinner.setPrompt("Change city");
-        // выделяем элемент
         spinner.setSelection(0);
-        // устанавливаем обработчик нажатия
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             @Override
@@ -160,7 +145,6 @@ public class ScrollingActivity extends AppCompatActivity implements LoaderManage
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new MyCursorLoader(this, db);
-
     }
 
     @Override

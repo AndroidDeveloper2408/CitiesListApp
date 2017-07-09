@@ -1,10 +1,7 @@
 package com.example.citieslistapp.base;
 
-import com.example.citieslistapp.model.CityInformation;
 import com.example.citieslistapp.model.CityObject;
 import com.example.citieslistapp.service.CityViewInterface;
-
-import java.util.List;
 
 import rx.Observer;
 

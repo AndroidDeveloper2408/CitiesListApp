@@ -40,10 +40,8 @@ public abstract class GetCountries extends AsyncTask<String, Void, String> {
             progressDialog.show();
             h = new Handler() {
                 public void handleMessage(Message msg) {
-                    // выключаем анимацию ожидания
                     progressDialog.setIndeterminate(false);
                     if (progressDialog.getProgress() < progressDialog.getMax()) {
-                        // увеличиваем значения индикаторов
                         progressDialog.incrementProgressBy(2);
                         progressDialog.incrementSecondaryProgressBy(3);
                         h.sendEmptyMessageDelayed(0, 100);

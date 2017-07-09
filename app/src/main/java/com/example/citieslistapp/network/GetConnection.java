@@ -29,8 +29,8 @@ public class GetConnection {
         try {
             URL url = new URL(urlString);
             HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
-            if(httpURLConnection.getResponseCode() == 200) // OK - 200
-            {
+            if(httpURLConnection.getResponseCode() == 200)
+                {
                 BufferedReader r = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
                 StringBuilder sb = new StringBuilder();
                 String line;

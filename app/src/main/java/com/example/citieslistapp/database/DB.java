@@ -93,7 +93,6 @@ public class DB {
         return country;
     }
 
-    // класс по созданию и управлению БД
     private class DBHelper extends SQLiteOpenHelper {
 
         public DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory,
@@ -101,7 +100,6 @@ public class DB {
             super(context, name, factory, version);
         }
 
-        // создаем и заполняем БД
         @Override
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(DB_CREATE_COUNTRIES);

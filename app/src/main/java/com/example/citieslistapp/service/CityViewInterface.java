@@ -1,9 +1,6 @@
 package com.example.citieslistapp.service;
 
-import com.example.citieslistapp.model.CityInformation;
 import com.example.citieslistapp.model.CityObject;
-
-import java.util.List;
 
 import rx.Observable;
 
